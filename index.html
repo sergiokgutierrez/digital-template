@@ -9,250 +9,252 @@
             margin: 0;
         }
     </style>
+    <style>
+		body
+		{
+		    color: #777;
+		    font-family: "Avenir", Verdana, sans-serif;
+		}
+		#readme
+		{
+		    margin-top: 10px;
+		}
+	</style>
     
 </head>
 <body>
-<div id="game"></div>
-<div id="readme">
-	<h2>Mason Basktball</h2>
-	<ul>
+	<div id="game">
 
-	<li><strong>High Concept:</strong>
-	this is a basketball game with very basic use of the controllers and colors
-	</li>
 
-	<li><strong>Player Experience Goals:</strong>
-	I want the player to have the expierence that he is playing a George Mason Game and that he is representing the Patriots.
-	</li>
+		<script type="text/javascript">
 
-	<li><strong>Genre:</strong>
-	sports/arcade
-	</li>
+		var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
-<<<<<<< HEAD
-	<li><strong>Game play:</strong>
-	Player has to collect all the starts and the ones on the top right corner will be extra hard because they have to jump in an angle.
-	</li>
-=======
-    game.load.image('sky', 'assets/masonb.png');
-    game.load.image('ground', 'assets/platform.png');
-    game.load.image('star', 'assets/masonStart.png');
-    game.load.image('diamond', 'assets/diamond.png');
-    game.load.spritesheet('dude', 'assets/masondude.png', 32, 48);
-     game.load.audio('sfx', [ 'assets/audio/SoundEffects/magical_horror_audiosprite.mp3', 'assets/audio/SoundEffects/magical_horror_audiosprite.ogg' ]);
->>>>>>> origin/gh-pages
+		function preload() {
 
-	<li><strong>Prototype goal:</strong>
-	To learn more about colors and other bugs that the player can work with
-	</li>
+		    game.load.image('sky', 'assets/masonb.png');
+		    game.load.image('ground', 'assets/platform.png');
+		    game.load.image('star', 'assets/masonstart.png');
+		    game.load.image('diamond', 'assets/diamond.png');
+		    game.load.spritesheet('dude', 'assets/masondude.png', 32, 48);
+		     game.load.audio('sfx', [ 'assets/audio/SoundEffects/magical_horror_audiosprite.mp3', 'assets/audio/SoundEffects/magical_horror_audiosprite.ogg' ]);
 
-	<li><strong>Features:</strong>
-	the helmet color of the player is change to match the Mason team, a clean sounds everytime that the star is pick, and also the background as well is change to show the basketball court in Mason
-	</li>
+		}
 
-	<li><strong>Setting/Premise:</strong>
-	The world is a basketball court, the charechtor is the Mason Dude. What makes this worls unique it suppost to show the campus of Mason. No backstory yet but working in it
-	</li>
+		var player;
+		var platforms;
+		var cursors;
 
-	<li><strong>Story:</strong>
-	no story yet
-	</li>
+		var stars;
+		var score = 0;
+		var scoreText;
 
-	<li><strong>Target Audience:</strong>
-	George Mason students that are trying to learn more about coding
-	</li>
+		function create() {
 
-	<li><strong>Play time:</strong>
-	1 minute or more
-	</li>
+		    //  Here we set-up our audio sprite
+		    fx = game.add.audio('sfx');
+		    fx.allowMultiple = false;
 
-	<li><strong>Strategies:</strong>use the agility to jump high to get more starts
-	</li>
+		        //  They consist of a key (for replaying), the time the sound starts and the duration, both given in seconds.
 
-	<li><strong>Prototype Assets:</strong>
-yeah I use the basis of the tutorial from the Phaser wevsite
-	</li>
+		    fx.addMarker('charm', 0, 2.7);
+		    fx.addMarker('curse', 4, 2.9);
+		    fx.addMarker('fireball', 8, 5.2);
+		    fx.addMarker('spell', 14, 4.7);
+		    fx.addMarker('soundscape', 20, 18.8);
 
-	<li><strong>Prototype Closest Other Game:</strong>
-	is also about collecting the start and having sounds and a good time
-	</li>
+		    //  We're going to be using physics, so enable the Arcade Physics system
+		    game.physics.startSystem(Phaser.Physics.ARCADE);
 
-	</ul>
+		    //  A simple background for our game
+		    game.add.sprite(50, 10, 'sky');
+
+		    //  The platforms group contains the ground and the 2 ledges we can jump on
+		    platforms = game.add.group();
+
+		    //  We will enable physics for any object that is created in this group
+		    platforms.enableBody = true;
+
+		    // Here we create the ground.
+		    var ground = platforms.create(0, game.world.height - 64, 'ground');
+
+		    //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+		    ground.scale.setTo(2, 2);
+
+		    //  This stops it from falling away when you jump on it
+		    ground.body.immovable = true;
+
+		    //  Now let's create 4 ledges
+		    var ledge = platforms.create(400, 200, 'ground');
+		    ledge.body.immovable = true;
+
+		    ledge = platforms.create(-300, 400, 'ground');
+		    ledge.body.immovable = true;
+
+		    var ledge = platforms.create(-300, 100, 'ground');
+		    ledge.body.immovable = true;
+
+		    ledge = platforms.create(-300, 250, 'ground');
+		    ledge.body.immovable = true;
+
+		    // The player and its settings
+		    player = game.add.sprite(32, game.world.height - 150, 'dude');
+
+		    //  We need to enable physics on the player
+		    game.physics.arcade.enable(player);
+
+		    //  Player physics properties. Give the little guy a slight bounce.
+		    player.body.bounce.y = 0.2;
+		    player.body.gravity.y = 300;
+		    player.body.collideWorldBounds = true;
+
+		    //  Our two animations, walking left and right.
+		    player.animations.add('left', [0, 1, 2, 3], 10, true);
+		    player.animations.add('right', [5, 6, 7, 8], 10, true);
+
+		    //  Finally some stars to collect
+		    stars = game.add.group();
+
+		    //  We will enable physics for any star that is created in this group
+		    stars.enableBody = true;
+
+		    //  Here we'll create 12 of them evenly spaced apart
+		    for (var i = 0; i < 12; i++)
+		    {
+		        //  Create a star inside of the 'stars' group
+		        var star = stars.create(i * 70, 0, 'star');
+
+		        //  Let gravity do its thing
+		        star.body.gravity.y = 300;
+
+		        //  This just gives each star a slightly random bounce value
+		        star.body.bounce.y = 0.7 + Math.random() * 0.2;
+		    }
+
+		    //  The score
+		    scoreText = game.add.text(500, 16, 'score: 0', { fontSize: '32px', fill: '#FFDE00' });
+
+		    //  Our controls.
+		    cursors = game.input.keyboard.createCursorKeys();
+		    
+		}
+
+		function update() {
+
+		    //  Collide the player and the stars with the platforms
+		    game.physics.arcade.collide(player, platforms);
+		    game.physics.arcade.collide(stars, platforms);
+
+		    //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
+		    game.physics.arcade.overlap(player, stars, collectStar, null, this);
+
+		    //  Reset the players velocity (movement)
+		    player.body.velocity.x = 0;
+
+		    if (cursors.left.isDown)
+		    {
+		        //  Move to the left
+		        player.body.velocity.x = -150;
+
+		        player.animations.play('left');
+		    }
+		    else if (cursors.right.isDown)
+		    {
+		        //  Move to the right
+		        player.body.velocity.x = 150;
+
+		        player.animations.play('right');
+		    }
+		    else
+		    {
+		        //  Stand still
+		        player.animations.stop();
+
+		        player.frame = 4;
+		    }
+		    
+		    //  Allow the player to jump if they are touching the ground.
+		    if (cursors.up.isDown && player.body.touching.down)
+		    {
+		        player.body.velocity.y = -400;
+		    }
+
+		}
+
+		function collectStar (player, star) {
+		    
+		    // Removes the star from the screen
+		    star.kill();
+
+		    fx.play('charm');
+
+		    //  Add and update the score
+		    score += 10;
+		    scoreText.text = 'Score: ' + score;
+
+		}
+
+		</script>
+		</div>
+
+	<div id="readme">
+		<h2>Mason Basktball</h2>
+		<ul>
+
+		<li><strong>High Concept:</strong>
+		this is a basketball game with very basic use of the controllers and colors
+		</li>
+
+		<li><strong>Player Experience Goals:</strong>
+		I want the player to have the expierence that he is playing a George Mason Game and that he is representing the Patriots.
+		</li>
+
+		<li><strong>Genre:</strong>
+		sports/arcade
+		</li>
+
+		<li><strong>Game play:</strong>
+		Player has to collect all the starts and the ones on the top right corner will be extra hard because they have to jump in an angle.
+		</li>
+
+		<li><strong>Prototype goal:</strong>
+		To learn more about colors and other bugs that the player can work with
+		</li>
+
+		<li><strong>Features:</strong>
+		the helmet color of the player is change to match the Mason team, a clean sounds everytime that the star is pick, and also the background as well is change to show the basketball court in Mason
+		</li>
+
+		<li><strong>Setting/Premise:</strong>
+		The world is a basketball court, the charechtor is the Mason Dude. What makes this worls unique it suppost to show the campus of Mason. No backstory yet but working in it
+		</li>
+
+		<li><strong>Story:</strong>
+		no story yet
+		</li>
+
+		<li><strong>Target Audience:</strong>
+		George Mason students that are trying to learn more about coding
+		</li>
+
+		<li><strong>Play time:</strong>
+		1 minute or more
+		</li>
+
+		<li><strong>Strategies:</strong>use the agility to jump high to get more starts
+		</li>
+
+		<li><strong>Prototype Assets:</strong>
+	yeah I use the basis of the tutorial from the Phaser wevsite
+		</li>
+
+		<li><strong>Prototype Closest Other Game:</strong>
+		is also about collecting the start and having sounds and a good time
+		</li>
+
+		</ul>
 	</div>
-
-
-	<script type="text/javascript">
-
-	var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-
-	function preload() {
-
-	    game.load.image('sky', 'assets/masonb.png');
-	    game.load.image('ground', 'assets/platform.png');
-	    game.load.image('star', 'assets/masonstart.png');
-	    game.load.image('diamond', 'assets/diamond.png');
-	    game.load.spritesheet('dude', 'assets/masondude.png', 32, 48);
-	     game.load.audio('sfx', [ 'assets/audio/SoundEffects/magical_horror_audiosprite.mp3', 'assets/audio/SoundEffects/magical_horror_audiosprite.ogg' ]);
-
-	}
-
-	var player;
-	var platforms;
-	var cursors;
-
-	var stars;
-	var score = 0;
-	var scoreText;
-
-	function create() {
-
-	    //  Here we set-up our audio sprite
-	    fx = game.add.audio('sfx');
-	    fx.allowMultiple = false;
-
-	        //  They consist of a key (for replaying), the time the sound starts and the duration, both given in seconds.
-
-	    fx.addMarker('charm', 0, 2.7);
-	    fx.addMarker('curse', 4, 2.9);
-	    fx.addMarker('fireball', 8, 5.2);
-	    fx.addMarker('spell', 14, 4.7);
-	    fx.addMarker('soundscape', 20, 18.8);
-
-	    //  We're going to be using physics, so enable the Arcade Physics system
-	    game.physics.startSystem(Phaser.Physics.ARCADE);
-
-	    //  A simple background for our game
-	    game.add.sprite(50, 10, 'sky');
-
-	    //  The platforms group contains the ground and the 2 ledges we can jump on
-	    platforms = game.add.group();
-
-	    //  We will enable physics for any object that is created in this group
-	    platforms.enableBody = true;
-
-	    // Here we create the ground.
-	    var ground = platforms.create(0, game.world.height - 64, 'ground');
-
-	    //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-	    ground.scale.setTo(2, 2);
-
-	    //  This stops it from falling away when you jump on it
-	    ground.body.immovable = true;
-
-	    //  Now let's create 4 ledges
-	    var ledge = platforms.create(400, 200, 'ground');
-	    ledge.body.immovable = true;
-
-	    ledge = platforms.create(-300, 400, 'ground');
-	    ledge.body.immovable = true;
-
-	    var ledge = platforms.create(-300, 100, 'ground');
-	    ledge.body.immovable = true;
-
-	    ledge = platforms.create(-300, 250, 'ground');
-	    ledge.body.immovable = true;
-
-	    // The player and its settings
-	    player = game.add.sprite(32, game.world.height - 150, 'dude');
-
-	    //  We need to enable physics on the player
-	    game.physics.arcade.enable(player);
-
-	    //  Player physics properties. Give the little guy a slight bounce.
-	    player.body.bounce.y = 0.2;
-	    player.body.gravity.y = 300;
-	    player.body.collideWorldBounds = true;
-
-	    //  Our two animations, walking left and right.
-	    player.animations.add('left', [0, 1, 2, 3], 10, true);
-	    player.animations.add('right', [5, 6, 7, 8], 10, true);
-
-	    //  Finally some stars to collect
-	    stars = game.add.group();
-
-	    //  We will enable physics for any star that is created in this group
-	    stars.enableBody = true;
-
-	    //  Here we'll create 12 of them evenly spaced apart
-	    for (var i = 0; i < 12; i++)
-	    {
-	        //  Create a star inside of the 'stars' group
-	        var star = stars.create(i * 70, 0, 'star');
-
-	        //  Let gravity do its thing
-	        star.body.gravity.y = 300;
-
-	        //  This just gives each star a slightly random bounce value
-	        star.body.bounce.y = 0.7 + Math.random() * 0.2;
-	    }
-
-	    //  The score
-	    scoreText = game.add.text(500, 16, 'score: 0', { fontSize: '32px', fill: '#FFDE00' });
-
-	    //  Our controls.
-	    cursors = game.input.keyboard.createCursorKeys();
-	    
-	}
-
-	function update() {
-
-	    //  Collide the player and the stars with the platforms
-	    game.physics.arcade.collide(player, platforms);
-	    game.physics.arcade.collide(stars, platforms);
-
-	    //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
-	    game.physics.arcade.overlap(player, stars, collectStar, null, this);
-
-	    //  Reset the players velocity (movement)
-	    player.body.velocity.x = 0;
-
-	    if (cursors.left.isDown)
-	    {
-	        //  Move to the left
-	        player.body.velocity.x = -150;
-
-	        player.animations.play('left');
-	    }
-	    else if (cursors.right.isDown)
-	    {
-	        //  Move to the right
-	        player.body.velocity.x = 150;
-
-	        player.animations.play('right');
-	    }
-	    else
-	    {
-	        //  Stand still
-	        player.animations.stop();
-
-	        player.frame = 4;
-	    }
-	    
-	    //  Allow the player to jump if they are touching the ground.
-	    if (cursors.up.isDown && player.body.touching.down)
-	    {
-	        player.body.velocity.y = -400;
-	    }
-
-	}
-
-	function collectStar (player, star) {
-	    
-	    // Removes the star from the screen
-	    star.kill();
-
-	    fx.play('charm');
-
-	    //  Add and update the score
-	    score += 10;
-	    scoreText.text = 'Score: ' + score;
-
-	}
-
-	</script>
-
-
-	
+		
 
 </body>
 </html>
